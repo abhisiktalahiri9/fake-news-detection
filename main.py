@@ -1,25 +1,31 @@
 from fastapi import FastAPI
-import pickle
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import joblib
 
-# Load saved model and vectorizer
-with open("model.pkl", "rb") as model_file:
-    model = pickle.load(model_file)
-
-with open("vectorizer.pkl", "rb") as vec_file:
-    vectorizer = pickle.load(vec_file)
+# Load your ML model and vectorizer
+model = joblib.load("model.pkl")
+vectorizer = joblib.load("vectorizer.pkl")
 
 app = FastAPI()
 
-@app.get("/")
-def home():
-    return {"message": "Fake News Detection API is running!"}
+# 🔥 CORS FIX HERE
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or ["http://127.0.0.1:5500"] if using Live Server
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.post("/predict/")
-def predict(text: str):
-    text_vector = vectorizer.transform([text])
+class NewsRequest(BaseModel):
+    news: str
 
-    prediction = model.predict(text_vector)[0]
+@app.post("/predict")
+def predict_news(item: NewsRequest):
+    X = vectorizer.transform([item.news])
+    y = model.predict(X)[0]
+    return {"prediction": "Fake" if y == 1 else "Real"}
 
-    return {"prediction": "FAKE" if prediction == 1 else "REAL"}
 
 

@@ -1,9 +1,8 @@
-fake_news_detection.ipynb/
- main.py
-model.pkl
-vectorizer.pkl
-templates/
- index.html
-static/
-style.css
+project/
+│
+├── main.py                ← FastAPI backend
+├── model.pkl              ← Your ML model
+├── vectorizer.pkl         ← Your vectorizer
+├── index.html             ← Your frontend
+├── style.css              ← CSS file
 
